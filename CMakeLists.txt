@@ -1,23 +1,14 @@
 cmake_minimum_required(VERSION 3.12)
 project(service_template CXX)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(DownloadUserver)
 
-# Adding userver dependency
 find_package(userver COMPONENTS core postgresql QUIET)
-if(NOT userver_FOUND)  # Fallback to subdirectory usage
-    # Compatibility mode: some systems don't support these features
-    set(USERVER_FEATURE_CRYPTOPP_BLAKE2 OFF CACHE BOOL "" FORCE)
-    set(USERVER_FEATURE_GRPC_CHANNELZ OFF CACHE BOOL "" FORCE)
-    set(USERVER_FEATURE_REDIS_HI_MALLOC ON CACHE BOOL "" FORCE)
-
-    if (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/userver)
-        message(STATUS "Using userver framework from third_party/userver")
-        add_subdirectory(third_party/userver)
-    else()
-        message(FATAL_ERROR "Either install the userver or provide a path to it")
-    endif()
+if(NOT userver_FOUND)
+  # download_userver() tries TRY_DIR first, fallbacks to downloading userver from github
+  download_userver(TRY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/userver")
 endif()
-
 userver_setup_environment()
 
 
